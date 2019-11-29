@@ -95,7 +95,6 @@ namespace SampleService.Controllers
             return Ok(customer);
         }
 
-
         // POST: api/customers
         [HttpPost]
         public async Task<IActionResult> PostCustomer([FromBody] Customer customer)
@@ -123,7 +122,6 @@ namespace SampleService.Controllers
                 return StatusCode(500);
             }            
         }
-
 
         // PUT: api/customers/5
         [HttpPut("{id}")]
