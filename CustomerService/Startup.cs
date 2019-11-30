@@ -28,7 +28,16 @@ namespace CustomerService
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Customer Service API", Version = "v1" });
+                x.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { 
+                    Title = "Customer Service API", 
+                    Version = "v1",
+                    Description = "Customer Service API (ASP.NET Core 2.2)", 
+                    Contact = new Swashbuckle.AspNetCore.Swagger.Contact()
+                    {
+                        Name = "Nirasha Gunasekera",
+                        Email = "nirasha_pr@yahoo.com"
+                    }
+                });
             });
         }
 
@@ -52,7 +61,6 @@ namespace CustomerService
             {
                 option.RouteTemplate = swaggerOptions.JsonRoute;
             });
-
 
             app.UseSwaggerUI(option =>
             {

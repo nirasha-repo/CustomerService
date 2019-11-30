@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerService", "CustomerService\CustomerService.csproj", "{D7AB08C5-58FE-462D-B2D4-0362D0DBD66E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerServiceTests", "CustomerServiceTests\CustomerServiceTests.csproj", "{D6B6A9D9-5184-4369-B1A3-DDE9B1B167BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D7AB08C5-58FE-462D-B2D4-0362D0DBD66E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7AB08C5-58FE-462D-B2D4-0362D0DBD66E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7AB08C5-58FE-462D-B2D4-0362D0DBD66E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6B6A9D9-5184-4369-B1A3-DDE9B1B167BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6B6A9D9-5184-4369-B1A3-DDE9B1B167BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6B6A9D9-5184-4369-B1A3-DDE9B1B167BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6B6A9D9-5184-4369-B1A3-DDE9B1B167BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

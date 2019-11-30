@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using CustomerService.DataContext;
 using CustomerService.Models;
+using System.Net;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Serilog;
 
-namespace SampleService.Controllers
+namespace CustomerService.Controllers
 {
     [Route("api/customers")]
     [ApiController]
@@ -20,18 +23,20 @@ namespace SampleService.Controllers
             _context = context;
         }
 
-        // GET: api/customers
-        // ex: https://localhost:5001/api/customers
+        // GET: api/customers        
         [HttpGet]
-        public IEnumerable<Customer> GetCustomers()
+        public async Task<IEnumerable<Customer>> GetCustomers()
         {
-            return _context.Customers;
+            return await _context.Customers.ToListAsync();
         }
 
-        // GET: api/customers/5
-        // ex: https://localhost:5001/api/customers/4
+        // GET: api/customers/5        
         [HttpGet]
         [Route("{id}")]        
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetCustomer([FromRoute] int id)
         {
             Customer customer;
@@ -47,12 +52,12 @@ namespace SampleService.Controllers
 
                 if (customer == null)
                 {
-                    return NotFound();
+                    return NotFound("Customer Not Found!");
                 }
             }
             catch (Exception ex)
-            {
-                // log exception details
+            {                
+                Log.Logger.Error("Get Customer Error : {@CustomerId} {@Error}", id, ex);
                 return StatusCode(500);
             }
             
@@ -63,7 +68,11 @@ namespace SampleService.Controllers
         // ex: https://localhost:5001/api/customers/getCustomerBySearchName/nir
         [HttpGet]
         [Route("getCustomerBySearchName/{searchString}")]
-        public IActionResult GetCustomerBySearchName(string searchString)
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetCustomerBySearchName(string searchString)
         {
             Customer customer;
 
@@ -79,7 +88,7 @@ namespace SampleService.Controllers
                     return BadRequest("Search String Is Empty!");
                 }
 
-                customer = FindCustomer(searchString);
+                customer = await FindCustomer(searchString);
 
                 if (customer == null)
                 {
@@ -88,7 +97,7 @@ namespace SampleService.Controllers
             }
             catch (Exception ex)
             {
-                // log exception details
+                Log.Logger.Error("Get Customer By Search Name Error : {@SearchString} {@Error}", searchString, ex);
                 return StatusCode(500);
             }            
 
@@ -97,6 +106,9 @@ namespace SampleService.Controllers
 
         // POST: api/customers
         [HttpPost]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]        
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> PostCustomer([FromBody] Customer customer)
         {          
             try
@@ -118,13 +130,17 @@ namespace SampleService.Controllers
             }
             catch (Exception ex)
             {
-                // log exception details
+                Log.Logger.Error("Post Customer Error : {@CustomerId} {@Error}", customer.Id, ex);
                 return StatusCode(500);
             }            
         }
 
         // PUT: api/customers/5
         [HttpPut("{id}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> PutCustomer([FromRoute] int id, [FromBody] Customer customer)
         {
             try
@@ -143,7 +159,7 @@ namespace SampleService.Controllers
                 {
                     return NotFound("Customer Not Found!");
                 }
-
+                                
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
@@ -151,13 +167,17 @@ namespace SampleService.Controllers
             }
             catch (Exception ex)
             {
-                // log exception details
+                Log.Logger.Error("Put Customer Error : {@CustomerId} {@Error}", customer.Id, ex);
                 return StatusCode(500);
             }            
         }
 
         // DELETE: api/customers/5
         [HttpDelete("{id}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteCustomer([FromRoute] int id)
         {
             Customer customer;
@@ -181,7 +201,7 @@ namespace SampleService.Controllers
             }
             catch (Exception ex)
             {
-                // log exception details
+                Log.Logger.Error("Delete Customer Error : {@CustomerId} {@Error}", id, ex);
                 return StatusCode(500);
             }            
 
@@ -193,16 +213,16 @@ namespace SampleService.Controllers
             return _context.Customers.Any(c => c.Id == id);
         }
 
-        private Customer FindCustomer(string searchString)
+        private async Task<Customer> FindCustomer(string searchString)
         { 
-            Customer customer = _context.Customers.FirstOrDefault(c => c.FirstName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
+            Customer customer = await _context.Customers.FirstOrDefaultAsync(c => c.FirstName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
 
             if(customer != null)
             {
                 return customer;
             }
 
-            customer = _context.Customers.FirstOrDefault(c => c.LastName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
+            customer = await _context.Customers.FirstOrDefaultAsync(c => c.LastName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
 
             return customer;
         }
