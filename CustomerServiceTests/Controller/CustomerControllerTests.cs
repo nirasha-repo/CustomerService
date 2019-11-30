@@ -309,27 +309,6 @@ namespace CustomerServiceTests
             Assert.Equal(500, ((StatusCodeResult)result).StatusCode);
         }
 
-        //[Fact]
-        //public async Task PutCustomer_ShouldReturnUpdatedCustomer_WhenExistingCustomerDetailsAreModified()
-        //{
-        //    //Arrange
-        //    var controller = new CustomersController(_context);
-
-        //    //Act
-        //    var result = await controller.PutCustomer(3, 
-        //        new Customer
-        //        {
-        //            Id = 3,
-        //            FirstName = "Emma",
-        //            LastName = "Watson",
-        //            DateOfBirth = new DateTime(1993, 05, 21)
-        //        });
-
-        //    //Assert
-        //    Assert.Equal("Emma", ((Customer)((ObjectResult)result).Value).FirstName);
-        //    Assert.Equal("Watson", ((Customer)((ObjectResult)result).Value).LastName);
-        //}
-
         [Fact]
         public async Task DeleteCustomer_ShouldReturnBadRequest_WhenModelStateIsInvalid()
         {

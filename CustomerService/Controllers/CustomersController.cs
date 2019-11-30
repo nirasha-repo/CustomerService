@@ -42,7 +42,7 @@ namespace CustomerService.Controllers
             Customer customer;
 
             try
-            {
+            {              
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -57,7 +57,7 @@ namespace CustomerService.Controllers
             }
             catch (Exception ex)
             {                
-                Log.Logger.Error("Get Customer Error : {@CustomerId} {@Error}", id, ex);
+                Log.Logger.Error("Get Customer Error for Customer Id: {@CustomerId} {@Error}", id, ex);
                 return StatusCode(500);
             }
             
@@ -97,7 +97,7 @@ namespace CustomerService.Controllers
             }
             catch (Exception ex)
             {
-                Log.Logger.Error("Get Customer By Search Name Error : {@SearchString} {@Error}", searchString, ex);
+                Log.Logger.Error("Get Customer By Search Name Error for the search text: {@SearchString} {@Error}", searchString, ex);
                 return StatusCode(500);
             }            
 
@@ -130,7 +130,7 @@ namespace CustomerService.Controllers
             }
             catch (Exception ex)
             {
-                Log.Logger.Error("Post Customer Error : {@CustomerId} {@Error}", customer.Id, ex);
+                Log.Logger.Error("Post Customer Error for Customer Id: {@CustomerId} {@Error}", customer.Id, ex);
                 return StatusCode(500);
             }            
         }
@@ -167,7 +167,7 @@ namespace CustomerService.Controllers
             }
             catch (Exception ex)
             {
-                Log.Logger.Error("Put Customer Error : {@CustomerId} {@Error}", customer.Id, ex);
+                Log.Logger.Error("Put Customer Error for Customer Id: {@CustomerId} {@Error}", customer.Id, ex);
                 return StatusCode(500);
             }            
         }
@@ -201,7 +201,7 @@ namespace CustomerService.Controllers
             }
             catch (Exception ex)
             {
-                Log.Logger.Error("Delete Customer Error : {@CustomerId} {@Error}", id, ex);
+                Log.Logger.Error("Delete Customer Error for Customer Id: {@CustomerId} {@Error}", id, ex);
                 return StatusCode(500);
             }            
 
