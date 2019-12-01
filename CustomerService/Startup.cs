@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CustomerService.Options;
+using CustomerService.Services.Interfaces;
 
 namespace CustomerService
 {
@@ -25,6 +26,7 @@ namespace CustomerService
         {  
             services.AddDbContext<CustomersDBContext>(options => options.UseInMemoryDatabase(databaseName: "Customers"));
             services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<CustomersDBContext>();
+            services.AddScoped<ICustomerService, Services.CustomerService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSwaggerGen(x =>
             {
@@ -38,7 +40,7 @@ namespace CustomerService
                         Email = "nirasha_pr@yahoo.com"
                     }
                 });
-            });
+            });            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

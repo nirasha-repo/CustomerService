@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using CustomerService.DataContext;
 using CustomerService.Models;
 using System.Net;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Serilog;
+using CustomerService.Services.Interfaces;
 
 namespace CustomerService.Controllers
 {
@@ -16,19 +16,19 @@ namespace CustomerService.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomersDBContext _context;
+        private readonly ICustomerService _customerService;
 
-        public CustomersController(CustomersDBContext context)
+        public CustomersController(ICustomerService customerService)
         {
-            _context = context;
+            _customerService = customerService;
         }
 
         // GET: api/customers        
         [HttpGet]
-        public async Task<IEnumerable<Customer>> GetCustomers()
+        public async Task<IEnumerable<Customer>> GetCustomers([FromQuery]int pageNo, [FromQuery]int pageSize)
         {
-            return await _context.Customers.ToListAsync();
-        }
+            return await _customerService.FindCustomers(pageNo, pageSize);
+        }        
 
         // GET: api/customers/5        
         [HttpGet]
@@ -48,7 +48,7 @@ namespace CustomerService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                customer = await _context.Customers.FindAsync(id);
+                customer = await _customerService.FindCustomer(id);
 
                 if (customer == null)
                 {
@@ -64,17 +64,18 @@ namespace CustomerService.Controllers
             return Ok(customer);
         }
 
+        
         // GET: api/customers
-        // ex: https://localhost:5001/api/customers/getCustomerBySearchName/nir
+        // ex: https://localhost:5001/api/customers/searchCustomer/nir
         [HttpGet]
-        [Route("getCustomerBySearchName/{searchString}")]
+        [Route("searchCustomers/{name}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetCustomerBySearchName(string searchString)
+        public async Task<IActionResult> SearchCustomers(string name)
         {
-            Customer customer;
+            IEnumerable<Customer> customers;
 
             try
             {
@@ -83,27 +84,27 @@ namespace CustomerService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (string.IsNullOrEmpty(searchString))
+                if (string.IsNullOrEmpty(name))
                 {
-                    return BadRequest("Search String Is Empty!");
+                    return BadRequest("Search Text Is Empty!");
                 }
 
-                customer = await FindCustomer(searchString);
+                customers = await _customerService.FindCustomers(name);
 
-                if (customer == null)
+                if (customers == null || !customers.Any())
                 {
                     return NotFound("Customer Not Found!");
                 }
             }
             catch (Exception ex)
             {
-                Log.Logger.Error("Get Customer By Search Name Error for the search text: {@SearchString} {@Error}", searchString, ex);
+                Log.Logger.Error("Search Customer Error for the name: {@SearchString} {@Error}", name, ex);
                 return StatusCode(500);
             }            
 
-            return Ok(customer);
+            return Ok(customers);
         }
-
+        
         // POST: api/customers
         [HttpPost]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
@@ -118,15 +119,14 @@ namespace CustomerService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (CustomerExists(customer.Id))
+                if (_customerService.CustomerExists(customer.Id))
                 {
                     return BadRequest("Customer Already Exists!");
                 }
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
+                Customer newCustomer = await _customerService.AddCustomer(customer);
 
-                return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+                return CreatedAtAction("GetCustomer", new { id = customer.Id }, newCustomer);
             }
             catch (Exception ex)
             {
@@ -155,15 +155,14 @@ namespace CustomerService.Controllers
                     return BadRequest("Incorrect Customer Ids!");
                 }
 
-                if (!CustomerExists(id))
+                if (!_customerService.CustomerExists(id))
                 {
                     return NotFound("Customer Not Found!");
                 }
-                                
-                _context.Entry(customer).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+                Customer updatedCustomer = await _customerService.UpdateCustomer(customer);
+
+                return CreatedAtAction("GetCustomer", new { id = customer.Id }, updatedCustomer);
             }
             catch (Exception ex)
             {
@@ -171,7 +170,7 @@ namespace CustomerService.Controllers
                 return StatusCode(500);
             }            
         }
-
+        
         // DELETE: api/customers/5
         [HttpDelete("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = (typeof(Customer)))]
@@ -189,15 +188,14 @@ namespace CustomerService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                customer = await _context.Customers.FindAsync(id);
-                
+                customer = await _customerService.FindCustomer(id);
+
                 if (customer == null)
                 {
                     return NotFound("Customer Not Found!");
                 }
 
-                _context.Customers.Remove(customer);
-                await _context.SaveChangesAsync();
+                customer = await _customerService.DeleteCustomer(customer);
             }
             catch (Exception ex)
             {
@@ -206,25 +204,6 @@ namespace CustomerService.Controllers
             }            
 
             return Ok(customer);
-        }
-
-        private bool CustomerExists(int id)
-        {
-            return _context.Customers.Any(c => c.Id == id);
-        }
-
-        private async Task<Customer> FindCustomer(string searchString)
-        { 
-            Customer customer = await _context.Customers.FirstOrDefaultAsync(c => c.FirstName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
-
-            if(customer != null)
-            {
-                return customer;
-            }
-
-            customer = await _context.Customers.FirstOrDefaultAsync(c => c.LastName.StartsWith(searchString, StringComparison.CurrentCultureIgnoreCase));
-
-            return customer;
-        }
+        }       
     }
 }

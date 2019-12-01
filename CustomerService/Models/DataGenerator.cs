@@ -72,6 +72,20 @@ namespace CustomerService.Models
                     FirstName = "Shane",
                     LastName = "Warne",
                     DateOfBirth = new DateTime(1975, 08, 14)
+                },
+                new Customer
+                {
+                    Id = 7,
+                    FirstName = "Shania",
+                    LastName = "Twain",
+                    DateOfBirth = new DateTime(1980, 02, 11)
+                },
+                new Customer
+                {
+                    Id = 8,
+                    FirstName = "Mark",
+                    LastName = "Shanders",
+                    DateOfBirth = new DateTime(1998, 05, 25)
                 }
             };
 
